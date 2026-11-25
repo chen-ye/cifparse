@@ -49,7 +49,9 @@ class AirwayPoint(RecordBase):
                     continue
                 if was_last_planning:
                     planning_continuation = PlanningContinuation()
-                    self.planning_continuation = planning_continuation.from_line(line)
+                    self.planning_continuation.append(
+                        planning_continuation.from_line(line)
+                    )
                     was_last_planning = False
                     continue
 
@@ -62,7 +64,7 @@ class AirwayPoint(RecordBase):
 
     def to_dict(self) -> dict:
         return {
-            "primary": self.primary.to_dict(),
+            "primary": self.primary.to_dict() if self.primary else None,
             "continuation": [item.to_dict() for item in self.continuation],
             "planning": [item.to_dict() for item in self.planning],
             "planning_continuation": [

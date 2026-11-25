@@ -6,10 +6,10 @@ from .widths import w_pri
 
 class Primary(Base):
     cont_rec_no: int
-    fl: int
-    limit_alt: str
+    fl: bool
+    limit_alt: int
     longest: int
-    is_ifr: int
+    is_ifr: bool
     longest_surface: str
     lat: float
     lon: float
@@ -22,13 +22,13 @@ class Primary(Base):
     transition_level: int
     usage: str
     time_zone: str
-    daylight_ind: str
+    daylight_ind: bool
     mag_true: str
     datum_code: str
     airport_name: str
 
-    def __init__(self):
-        super().__init__("airports")
+    def __init__(self, table_name: str = "airports"):
+        super().__init__(table_name)
         self.cont_rec_no = None
         self.fl = None
         self.limit_alt = None

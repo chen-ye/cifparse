@@ -1,5 +1,5 @@
 from cifparse.functions.field import extract_field
-from cifparse.records.mora.widths import w_pri as __w_pri
+from cifparse.records.company_route.widths import w_pri as c_w_pri
 from cifparse.records.alternate_record.widths import w_pri as a_w_pri
 
 
@@ -12,7 +12,7 @@ class SectionR:
         self.subsection_a = []
 
         for line in lines:
-            if extract_field(line, __w_pri.sub_code) == " ":
+            if extract_field(line, c_w_pri.sub_code) is None:
                 self.subsection__.append(line)
                 continue
             if extract_field(line, a_w_pri.sub_code) == "A":

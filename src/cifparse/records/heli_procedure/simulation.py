@@ -5,13 +5,13 @@ from .widths import w_sim
 
 
 class Simulation(Base):
-    cont_rec_no: str
+    cont_rec_no: int
     application: str
-    fas_block: str
+    fas_block: bool
     fas_service: str
-    l_vnav_block: str
+    l_vnav_block: bool
     l_vnav_service: str
-    lnav_block: str
+    lnav_block: bool
     lnav_service: str
     app_rte_type_1: str
     app_rte_type_2: str

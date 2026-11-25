@@ -12,7 +12,6 @@ class Primary(Base):
     lat: float
     lon: float
     true_bearing: float
-    true: bool
     mag_var: float
     fac_elev: int
     datum_code: str
@@ -48,6 +47,7 @@ class Primary(Base):
         self.fac_elev = extract_field(line, w_pri.fac_elev)
         self.datum_code = extract_field(line, w_pri.datum_code)
         self.marker_name = extract_field(line, w_pri.marker_name)
+        return self
 
     def ordered_fields(self) -> dict:
         result = []

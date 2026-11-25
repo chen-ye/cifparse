@@ -17,9 +17,10 @@ class Continuation(Base):
     mda_cat_d: int
     tch: int
     alt_desc: str
+    loc_fl: bool
     loc_alt: int
     vert_angle: float
-    rnp: str
+    rnp: float
     rte_qual_1: str
     rte_qual_2: str
 
@@ -37,6 +38,7 @@ class Continuation(Base):
         self.mda_cat_d = None
         self.tch = None
         self.alt_desc = None
+        self.loc_fl = None
         self.loc_alt = None
         self.vert_angle = None
         self.rnp = None
@@ -60,7 +62,7 @@ class Continuation(Base):
         self.mda_cat_d = extract_field(line, w_con.mda_cat_d)
         self.tch = extract_field(line, w_con.tch)
         self.alt_desc = extract_field(line, w_con.alt_desc)
-        self.loc_alt = extract_field(line, w_con.loc_alt)
+        self.loc_fl, self.loc_alt = extract_field(line, w_con.loc_alt)
         self.vert_angle = extract_field(line, w_con.vert_angle)
         self.rnp = extract_field(line, w_con.rnp)
         self.rte_qual_1 = extract_field(line, w_con.rte_qual_1)
@@ -84,6 +86,7 @@ class Continuation(Base):
                 "mda_cat_d",
                 "tch",
                 "alt_desc",
+                "loc_fl",
                 "loc_alt",
                 "vert_angle",
                 "rnp",
@@ -110,6 +113,7 @@ class Continuation(Base):
             "mda_cat_d": self.mda_cat_d,
             "tch": self.tch,
             "alt_desc": self.alt_desc,
+            "loc_fl": self.loc_fl,
             "loc_alt": self.loc_alt,
             "vert_angle": self.vert_angle,
             "rnp": self.rnp,

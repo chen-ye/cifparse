@@ -9,7 +9,7 @@ class Simulation(Base):
     application: str
     fac_char: str
     true_bearing: float
-    source: str
+    source: bool
     beam_width: float
     app_ident_1: str
     app_ident_2: str
@@ -47,6 +47,7 @@ class Simulation(Base):
         self.app_ident_3 = extract_field(line, w_sim.app_ident_3)
         self.app_ident_4 = extract_field(line, w_sim.app_ident_4)
         self.app_ident_5 = extract_field(line, w_sim.app_ident_5)
+        return self
 
     def ordered_fields(self) -> list:
         result = []

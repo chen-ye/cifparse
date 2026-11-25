@@ -19,14 +19,14 @@ class Primary(Base):
     true: bool
     course: float
     dist_time: float
-    time: int
+    time: bool
     rec_vhf_sec_code: str
     rec_vhf_sub_code: str
     alt_desc: str
     atc: str
-    fl_1: int
+    fl_1: bool
     alt_1: int
-    fl_2: int
+    fl_2: bool
     alt_2: int
     trans_alt: int
     speed_limit: int
@@ -41,8 +41,8 @@ class Primary(Base):
     rte_qual_1: str
     rte_qual_2: str
 
-    def __init__(self):
-        super().__init__("heli_procedure_points")
+    def __init__(self, table_name: str = "heli_procedure_points"):
+        super().__init__(table_name)
         self.cont_rec_no = None
         self.desc_code = None
         self.turn_direction = None

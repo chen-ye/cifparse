@@ -12,7 +12,7 @@ class Primary(Base):
     lat: float
     lon: float
     gradient: float
-    ellipsoidal_height: int
+    ellipsoidal_height: float
     threshold_elevation: int
     displaced_threshold: int
     tch: int
@@ -20,7 +20,7 @@ class Primary(Base):
     tch_id: str
     ls_ident_1: str
     cat_1: str
-    stopway: str
+    stopway: int
     ls_ident_2: str
     cat_2: str
     description: str

@@ -8,6 +8,7 @@ from cifparse.records.loc_gs.widths import w_pri as i_w_pri
 from cifparse.records.taa.widths import w_pri as k_w_pri
 from cifparse.records.mls.widths import w_pri as l_w_pri
 from cifparse.records.terminal_marker.widths import w_pri as m_w_pri
+from cifparse.records.ndb_navaid.widths import w_pri as n_w_pri
 from cifparse.records.path_point.widths import w_pri as p_w_pri
 from cifparse.records.flight_planning.widths import w_pri as r_w_pri
 from cifparse.records.msa.widths import w_pri as s_w_pri
@@ -27,6 +28,7 @@ class SectionP:
     subsection_k: list[str]  # TAA
     subsection_l: list[str]  # MLS
     subsection_m: list[str]  # Markers
+    subsection_n: list[str]  # Terminal NDB
     subsection_p: list[str]  # Path Point
     subsection_r: list[str]  # Flight Planning
     subsection_s: list[str]  # MSA
@@ -45,6 +47,7 @@ class SectionP:
         self.subsection_k = []
         self.subsection_l = []
         self.subsection_m = []
+        self.subsection_n = []
         self.subsection_p = []
         self.subsection_r = []
         self.subsection_s = []
@@ -52,6 +55,9 @@ class SectionP:
         self.subsection_v = []
 
         for line in lines:
+            if extract_field(line, n_w_pri.sub_code) == "N":
+                self.subsection_n.append(line)
+                continue
             if extract_field(line, a_w_pri.sub_code) == "A":
                 self.subsection_a.append(line)
                 continue
@@ -133,6 +139,9 @@ class SectionP:
 
     def get_markers(self) -> list[str]:
         return self.subsection_m
+
+    def get_terminal_ndbs(self) -> list[str]:
+        return self.subsection_n
 
     def get_path_points(self) -> list[str]:
         return self.subsection_p

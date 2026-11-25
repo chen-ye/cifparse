@@ -27,7 +27,7 @@ class Combined(Base):
         return f"{self.__class__.__name__}: {self.fir_rdo_id}, {self.comm_freq}, {self.callsign}"
 
     def from_line(self, line: str) -> "Combined":
-        super().from_lien(line)
+        super().from_line(line)
         self.cont_rec_no = extract_field(line, w_com.cont_rec_no)
         self.application = extract_field(line, w_com.application)
         self.time_zone = extract_field(line, w_com.time_zone)

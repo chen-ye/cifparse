@@ -14,19 +14,19 @@ class Primary(Base):
     lon: float
     mag_var: float
     fac_elev: int
-    h24_ind: str
+    h24_ind: bool
     sector: str
     alt_desc: str
     alt_1: int
-    fl_1: int
+    fl_1: bool
     alt_2: int
-    fl_2: int
+    fl_2: bool
     sector_fac: str
     sector_region: str
     sector_sec_code: str
     sector_sub_code: str
     dist_desc: str
-    comm_dist: str
+    comm_dist: int
     remote_fac: str
     remote_region: str
     remote_sec_code: str

@@ -24,8 +24,8 @@ class CruisePrimary(Base):
     op_time_4: str
     cruise_id: str
 
-    def __init__(self):
-        super().__init__("restriction_cruises")
+    def __init__(self, table_name: str = "restriction_cruises"):
+        super().__init__(table_name)
         self.cont_rec_no = None
         self.start_point_id = None
         self.start_point_region = None

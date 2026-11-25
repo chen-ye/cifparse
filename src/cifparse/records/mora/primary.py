@@ -5,8 +5,8 @@ from .widths import w_pri
 
 
 class Primary(Base):
-    start_lat: float
-    start_lon: float
+    start_lat: str
+    start_lon: str
     mora_1: int
     mora_2: int
     mora_3: int

@@ -15,8 +15,10 @@ class Primary(Base):
     name_indicator: str
     name_description: str
 
-    def __init__(self, is_terminal: bool = False):
-        super().__init__("terminal_waypoints" if is_terminal else "waypoints")
+    def __init__(self, is_terminal: bool = False, table_name: str = None):
+        super().__init__(
+            table_name or ("terminal_waypoints" if is_terminal else "waypoints")
+        )
         self.cont_rec_no = None
         self.type = None
         self.usage = None

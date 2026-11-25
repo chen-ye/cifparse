@@ -7,26 +7,26 @@ from .widths import w_pri
 class Primary(Base):
     cont_rec_no: int
     bearing_1: str
-    min_alt_1: str
-    radius_1: str
+    min_alt_1: int
+    radius_1: int
     bearing_2: str
-    min_alt_2: str
-    radius_2: str
+    min_alt_2: int
+    radius_2: int
     bearing_3: str
-    min_alt_3: str
-    radius_3: str
+    min_alt_3: int
+    radius_3: int
     bearing_4: str
-    min_alt_4: str
-    radius_4: str
+    min_alt_4: int
+    radius_4: int
     bearing_5: str
-    min_alt_5: str
-    radius_5: str
+    min_alt_5: int
+    radius_5: int
     bearing_6: str
-    min_alt_6: str
-    radius_6: str
+    min_alt_6: int
+    radius_6: int
     bearing_7: str
-    min_alt_7: str
-    radius_7: str
+    min_alt_7: int
+    radius_7: int
     mag_true: str
 
     def __init__(self):

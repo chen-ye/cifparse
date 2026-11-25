@@ -84,5 +84,5 @@ class Base(TableBase):
 
     def to_dict(self) -> dict:
         leading = self.get_leading_dict()
-        trailing = self.get_trailing_dict
+        trailing = self.get_trailing_dict()
         return {**leading, **trailing}

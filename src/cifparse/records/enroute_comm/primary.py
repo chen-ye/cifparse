@@ -14,12 +14,12 @@ class Primary(Base):
     lon: float
     mag_var: float
     fac_elev: int
-    h24_ind: str
+    h24_ind: bool
     alt_desc: str
     alt_1: int
-    fl_1: int
+    fl_1: bool
     alt_2: int
-    fl_2: int
+    fl_2: bool
     remote_fac: str
     remote_region: str
     remote_sec_code: str

@@ -59,6 +59,7 @@ class Primary(Base):
         self.level_from_4 = extract_field(line, w_pri.level_from_4)
         self.vert_sep_4 = extract_field(line, w_pri.vert_sep_4)
         self.level_to_4 = extract_field(line, w_pri.level_to_4)
+        return self
 
     def ordered_fields(self) -> dict:
         result = []

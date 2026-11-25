@@ -46,7 +46,9 @@ class AirwayRestriction(RestrictionBase):
                     continue
                 else:
                     alt_exc_continuation = AltExcContinuation()
-                    self.alt_exc_continuation = alt_exc_continuation.from_line(line)
+                    self.alt_exc_continuation.append(
+                        alt_exc_continuation.from_line(line)
+                    )
                     continue
             if rest_type == rt_table.cruising_table:
                 cont_rec_no = extract_field(line, w_cru.cont_rec_no)
@@ -56,7 +58,9 @@ class AirwayRestriction(RestrictionBase):
                     continue
                 else:
                     cruise_continuation = CruiseContinuation()
-                    self.cruise_continuation = cruise_continuation.from_line(line)
+                    self.cruise_continuation.append(
+                        cruise_continuation.from_line(line)
+                    )
                     continue
             if rest_type == rt_table.seasonal_restriction:
                 cont_rec_no = extract_field(line, w_clo.cont_rec_no)
@@ -72,7 +76,7 @@ class AirwayRestriction(RestrictionBase):
                     continue
                 else:
                     note_continuation = NoteContinuation()
-                    self.note_continuation = note_continuation.from_line(line)
+                    self.note_continuation.append(note_continuation.from_line(line))
                     continue
 
     def __repr__(self):
@@ -87,16 +91,22 @@ class AirwayRestriction(RestrictionBase):
 
     def to_dict(self) -> dict:
         return {
-            "alt_exc_primary": self.alt_exc_primary.to_dict(),
+            "alt_exc_primary": self.alt_exc_primary.to_dict()
+            if self.alt_exc_primary
+            else None,
             "alt_exc_continuation": [
                 item.to_dict() for item in self.alt_exc_continuation
             ],
-            "cruise_primary": self.cruise_primary.to_dict(),
+            "cruise_primary": self.cruise_primary.to_dict()
+            if self.cruise_primary
+            else None,
             "cruise_continuation": [
                 item.to_dict() for item in self.cruise_continuation
             ],
-            "closure_primary": self.closure_primary.to_dict(),
-            "note_primary": self.note_primary.to_dict(),
+            "closure_primary": self.closure_primary.to_dict()
+            if self.closure_primary
+            else None,
+            "note_primary": self.note_primary.to_dict() if self.note_primary else None,
             "note_continuation": [item.to_dict() for item in self.note_continuation],
         }
 

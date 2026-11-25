@@ -1,3 +1,7 @@
+def _is_ascii_digits(string: str) -> bool:
+    return bool(string) and string.isascii() and string.isdigit()
+
+
 def _check_empty_string(string: str) -> bool:
     return True if string.strip() == "" else False
 
@@ -7,15 +11,15 @@ def _string_or_none(string: str) -> str | None:
 
 
 def _check_int_value(check_string: str) -> int:
-    return int(check_string) if check_string.isnumeric() else 0
+    return int(check_string) if _is_ascii_digits(check_string) else 0
 
 
 def _get_altitude_fl(string: str) -> tuple[bool, int] | tuple[None, None]:
     if string[:2] == "FL":
-        if string[2:].isnumeric():
+        if _is_ascii_digits(string[2:]):
             return (True, int(string[2:]))
     else:
-        if string.isnumeric():
+        if _is_ascii_digits(string):
             return (False, int(string))
     return (None, None)
 
@@ -29,35 +33,58 @@ def _get_bool(string: str) -> bool | None:
 
 
 def _get_int(string: str) -> int | None:
-    if _check_empty_string(string) or not string.isnumeric():
+    if _check_empty_string(string) or not _is_ascii_digits(string):
         return None
     return int(string)
 
 
+def _get_signed_int(string: str) -> int | None:
+    if _check_empty_string(string):
+        return None
+    sign = string[:1]
+    value = string
+    if sign in ["+", "-", " "]:
+        value = string[1:]
+    if not _is_ascii_digits(value):
+        return None
+    result = int(value)
+    if sign == "-" and result:
+        return -result
+    return result
+
+
 def _get_course(string: str) -> float | None:
-    if _check_empty_string(string) or not string.isnumeric():
+    if _check_empty_string(string) or not _is_ascii_digits(string):
         return None
     return _get_scaled_magnitude(string, -1)
 
 
-def _get_lat(string: str, high_precision: bool = False) -> float:
-    scalar = -4 if high_precision else -2
+def _get_lat(string: str, high_precision: bool = False) -> float | None:
+    if _check_empty_string(string) or len(string) < 9:
+        return None
     north_south = string[0:1]
-    lat_d = _check_int_value(string[1:3])
-    lat_m = _check_int_value(string[3:5])
-    lat_s = _get_scaled_int(_check_int_value(string[5:]), scalar)
+    if north_south not in ["N", "S"] or not _is_ascii_digits(string[1:]):
+        return None
+    scalar = -4 if high_precision else -2
+    lat_d = int(string[1:3])
+    lat_m = int(string[3:5])
+    lat_s = _get_scaled_int(int(string[5:]), scalar)
     result = lat_d + (lat_m / 60) + (lat_s / (60 * 60))
     if north_south == "S":
         result = -result
     return result
 
 
-def _get_lon(string: str, high_precision: bool = False) -> float:
-    scalar = -4 if high_precision else -2
+def _get_lon(string: str, high_precision: bool = False) -> float | None:
+    if _check_empty_string(string) or len(string) < 10:
+        return None
     east_west = string[0:1]
-    lon_d = _check_int_value(string[1:4])
-    lon_m = _check_int_value(string[4:6])
-    lon_s = _get_scaled_int(_check_int_value(string[6:]), scalar)
+    if east_west not in ["E", "W"] or not _is_ascii_digits(string[1:]):
+        return None
+    scalar = -4 if high_precision else -2
+    lon_d = int(string[1:4])
+    lon_m = int(string[4:6])
+    lon_s = _get_scaled_int(int(string[6:]), scalar)
     result = lon_d + (lon_m / 60) + (lon_s / (60 * 60))
     if east_west == "W":
         result = -result
@@ -70,10 +97,10 @@ def _get_magnetic_bearing_with_true(
     if _check_empty_string(string):
         return (None, None)
     if string[-1] == "T":
-        if string[:-1].isnumeric():
+        if _is_ascii_digits(string[:-1]):
             return (True, int(string[:-1]))
     else:
-        if string.isnumeric():
+        if _is_ascii_digits(string):
             return (False, _get_scaled_int(int(string), -1))
     return (None, None)
 
@@ -83,15 +110,17 @@ def _get_scaled_int(int: int, scalar: int) -> float:
 
 
 def _get_scaled_magnitude(string: str, scalar: int) -> float | None:
-    if _check_empty_string(string) or not string.isnumeric():
+    if _check_empty_string(string) or not _is_ascii_digits(string):
         return None
     return _get_scaled_int(int(string), scalar)
 
 
 def _get_signed_value(string: str, scalar: int = -1) -> float | None:
+    if _check_empty_string(string):
+        return None
     sign = string[:1]
     value = string
-    if sign in ["+", "-"]:
+    if sign in ["+", "-", " "]:
         value = string[1:]
     result = _get_scaled_magnitude(value, scalar)
     if sign == "-" and result:
@@ -167,14 +196,15 @@ def field_514(string: str) -> str | None:
 # 515 Reserved
 
 
-def field_516(string: str) -> int:
+def field_516(string: str) -> int | None:
     "Continuation Record Number"
-    if string.isnumeric():
+    if len(string) != 1:
+        return None
+    if _is_ascii_digits(string):
         return int(string)
-    result = string.upper()
-    if "A" <= result <= "Z":
-        return ord(result) - ord("A")
-    return 0
+    if "A" <= string <= "Z":
+        return 10 + ord(string) - ord("A")
+    return None
 
 
 def field_517(string: str) -> str | None:
@@ -214,15 +244,11 @@ def field_523(string: str) -> str | None:
 
 def field_524(string: str) -> float | None:
     "Theta"
-    if _check_empty_string(string) or not string.isnumeric():
-        return None
     return _get_scaled_magnitude(string, -1)
 
 
 def field_525(string: str) -> float | None:
     "Rho"
-    if _check_empty_string(string) or not string.isnumeric():
-        return None
     return _get_scaled_magnitude(string, -1)
 
 
@@ -234,10 +260,10 @@ def field_526(string: str) -> tuple[bool, float] | tuple[None, None]:
 def field_527(string: str) -> tuple[bool, float] | tuple[None, None]:
     "Route Distance From, Holding Distance/Time"
     if string[:1] == "T":
-        if string[1:].isnumeric():
+        if _is_ascii_digits(string[1:]):
             return (True, _get_scaled_int(int(string[1:]), -1))
     else:
-        if string.isnumeric():
+        if _is_ascii_digits(string):
             return (False, _get_scaled_int(int(string), -1))
     return (None, None)
 
@@ -257,11 +283,12 @@ def field_530(string: str) -> tuple[bool, int] | tuple[None, None]:
     if string in ["UNKNN", "NESTB"]:
         return (None, None)
     if string[:2] == "FL":
-        if string[2:].isnumeric():
+        if _is_ascii_digits(string[2:]):
             return (True, int(string[2:]))
     else:
-        if string.isnumeric():
-            return (False, int(string))
+        val = _get_signed_int(string)
+        if val is not None:
+            return (False, val)
     return (None, None)
 
 
@@ -280,14 +307,12 @@ def field_533(string: str) -> str | None:
     return _string_or_none(string.strip())
 
 
-def field_534(string: str, type: str) -> float | None:
+def field_534(string: str, type: str | None = None) -> float | None:
     """
     VOR/NDB Frequency
 
     REQUIRES TYPE
     """
-    if _check_empty_string(string) or not string.isnumeric():
-        return None
     if type == "VOR":
         return _get_scaled_magnitude(string, -2)
     if type == "NDB":
@@ -321,19 +346,21 @@ def field_538(string: str) -> str | None:
 
 def field_539(string: str) -> float | None:
     "Magnetic Variation"
-    if _check_empty_string(string) or not string[1:].isnumeric():
+    if _check_empty_string(string) or not _is_ascii_digits(string[1:]):
         return None
     if string[:1] == "T":
-        return 0
+        return 0.0
+    if string[:1] not in ["E", "W"]:
+        return None
     result = _get_scaled_magnitude(string[1:], -1)
-    if string[:1] == "W" and result != None:
+    if string[:1] == "W" and result is not None:
         result = -result
     return result
 
 
 def field_540(string: str) -> int | None:
     "DME Elevation"
-    return _get_int(string)
+    return _get_signed_int(string)
 
 
 def field_541(string: str) -> str | None:
@@ -358,8 +385,6 @@ def field_544(string: str) -> str | None:
 
 def field_545(string: str) -> float | None:
     "Localizer Frequency"
-    if _check_empty_string(string) or not string.isnumeric():
-        return None
     return _get_scaled_magnitude(string, -2)
 
 
@@ -390,15 +415,11 @@ def field_550(string: str) -> int | None:
 
 def field_551(string: str) -> float | None:
     "Localizer Width"
-    if _check_empty_string(string) or not string.isnumeric():
-        return None
     return _get_scaled_magnitude(string, -2)
 
 
 def field_552(string: str) -> float | None:
     "Glide Slope Angle / Minimum Elevation Angle"
-    if _check_empty_string(string) or not string.isnumeric():
-        return None
     return _get_scaled_magnitude(string, -2)
 
 
@@ -417,7 +438,7 @@ def field_554(string: str) -> int | None:
 
 def field_555(string: str) -> int | None:
     "Airport/Heliport Elevation"
-    return _get_int(string)
+    return _get_signed_int(string)
 
 
 def field_556(string: str) -> str | None:
@@ -462,26 +483,24 @@ def field_563(string: str) -> str | None:
 
 def field_564(string: str) -> float | None:
     "Leg Length"
-    if _check_empty_string(string) or not string.isnumeric():
-        return None
     return _get_scaled_magnitude(string, -1)
 
 
 def field_565(string: str) -> float | None:
     "Leg Time"
-    if _check_empty_string(string) or not string.isnumeric():
-        return None
     return _get_scaled_magnitude(string, -1)
 
 
 def field_566(string: str) -> float | None:
     "Station Declination"
-    if _check_empty_string(string) or not string[1:].isnumeric():
+    if _check_empty_string(string) or not _is_ascii_digits(string[1:]):
         return None
     if string[:1] in ["G", "T"]:
-        return 0
+        return 0.0
+    if string[:1] not in ["E", "W"]:
+        return None
     result = _get_scaled_magnitude(string[1:], -1)
-    if string[:1] == "W" and result != None:
+    if string[:1] == "W" and result is not None:
         result = -result
     return result
 
@@ -493,7 +512,7 @@ def field_567(string: str) -> int | None:
 
 def field_568(string: str) -> int | None:
     "Landing Threshold Elevation"
-    return _get_int(string)
+    return _get_signed_int(string)
 
 
 def field_569(string: str) -> int | None:
@@ -523,7 +542,7 @@ def field_573(string: str) -> tuple[bool, int] | tuple[None, None]:
 
 def field_574(string: str) -> int | None:
     "Component Elevation"
-    return _get_int(string)
+    return _get_signed_int(string)
 
 
 def field_575(string: str) -> str | None:
@@ -613,7 +632,7 @@ def field_591(string: str) -> str | None:
 
 def field_592(string: str) -> int | None:
     "Facility Elevation"
-    return _get_int(string)
+    return _get_signed_int(string)
 
 
 def field_593(string: str) -> str | None:
@@ -638,7 +657,7 @@ def field_596(string: str) -> float | None:
 
 def field_597(string: str) -> int | None:
     "Touchdown Zone Elevation"
-    return _get_int(string)
+    return _get_signed_int(string)
 
 
 def field_598(string: str) -> str | None:
@@ -666,7 +685,7 @@ def field_5102(string: str) -> str | None:
     return _string_or_none(string)
 
 
-def field_5103(string: str, type: str) -> float | None:
+def field_5103(string: str, type: str | None = None) -> float | None:
     """
     Communication Frequency
 
@@ -674,7 +693,7 @@ def field_5103(string: str, type: str) -> float | None:
     """
     if type in ["H", "U"]:
         return _get_scaled_magnitude(string, -2)
-    if type == ["V", "C"]:
+    if type in ["V", "C"]:
         return _get_scaled_magnitude(string, -3)
     return None
 
@@ -1196,16 +1215,17 @@ def field_5210(string: str) -> str | None:
 
 def field_5211(string: str) -> float | None:
     "Required Navigation Performance"
-    if string[0:1] == "0":
-        value = string[1:2]
-        exponent = -int(string[2:3])
-        return _get_scaled_magnitude(value, exponent)
-    return _get_scaled_magnitude(string, -1)
+    if len(string) != 3 or not _is_ascii_digits(string):
+        return None
+    value = string[0:2]
+    exponent = -int(string[2:3])
+    result = _get_scaled_magnitude(value, exponent)
+    return float(result) if result is not None else None
 
 
 def field_5212(string: str) -> float | None:
     "Runway Gradient"
-    return _get_signed_value(string, -2)
+    return _get_signed_value(string, -3)
 
 
 def field_5213(string: str) -> str | None:
@@ -1385,7 +1405,7 @@ def field_5247(string: str) -> str | None:
 
 def field_5248(string: str) -> int | None:
     "Station Elevation WGS84"
-    return _get_int(string)
+    return _get_signed_int(string)
 
 
 def field_5249(string: str) -> str | None:
@@ -1468,14 +1488,12 @@ def field_5264(string: str) -> float | None:
     return _get_scaled_magnitude(string, -1)
 
 
-def field_5265(string: str, type: str) -> float | None:
+def field_5265(string: str, type: str | None = None) -> float | None:
     """
     Path Point TCH
 
     REQUIRES TYPE
     """
-    if _check_empty_string(string) or not string.isnumeric():
-        return None
     if type == "F":
         return _get_scaled_magnitude(string, -1)
     if type == "M":

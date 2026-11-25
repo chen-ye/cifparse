@@ -43,7 +43,7 @@ class PrimaryIndices(BaseIndices):
         self.remote_fac = (103, 107, field_5200)
         self.remote_region = (107, 109, field_514)
         self.remote_sec_code = (109, 110, field_54)
-        self.remote_sub_code = (119, 111, field_55)
+        self.remote_sub_code = (110, 111, field_55)
         # RESERVED 12
 
 

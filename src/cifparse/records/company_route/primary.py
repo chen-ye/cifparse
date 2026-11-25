@@ -14,11 +14,12 @@ class Primary(Base):
     to_sub_code_1: str
     runway_transition: str
     enroute_transition: str
-    cruise_altitude: str
+    cruise_fl: bool
+    cruise_altitude: int
     term_alt_ref: str
     term_alt_region: str
-    alt_dist: str
-    cost_index: str
+    alt_dist: int
+    cost_index: int
     enrt_alt_ref: str
 
     def __init__(self):
@@ -32,6 +33,7 @@ class Primary(Base):
         self.to_sub_code_1 = None
         self.runway_transition = None
         self.enroute_transition = None
+        self.cruise_fl = None
         self.cruise_altitude = None
         self.term_alt_ref = None
         self.term_alt_region = None
@@ -53,7 +55,9 @@ class Primary(Base):
         self.to_sub_code_1 = extract_field(line, w_pri.to_sub_code_1)
         self.runway_transition = extract_field(line, w_pri.runway_transition)
         self.enroute_transition = extract_field(line, w_pri.enroute_transition)
-        self.cruise_altitude = extract_field(line, w_pri.cruise_altitude)
+        self.cruise_fl, self.cruise_altitude = extract_field(
+            line, w_pri.cruise_altitude
+        )
         self.term_alt_ref = extract_field(line, w_pri.term_alt_ref)
         self.term_alt_region = extract_field(line, w_pri.term_alt_region)
         self.alt_dist = extract_field(line, w_pri.alt_dist)
@@ -75,6 +79,7 @@ class Primary(Base):
                 "to_sub_code_1",
                 "runway_transition",
                 "enroute_transition",
+                "cruise_fl",
                 "cruise_altitude",
                 "term_alt_ref",
                 "term_alt_region",
@@ -99,6 +104,7 @@ class Primary(Base):
             "to_sub_code_1": self.to_sub_code_1,
             "runway_transition": self.runway_transition,
             "enroute_transition": self.enroute_transition,
+            "cruise_fl": self.cruise_fl,
             "cruise_altitude": self.cruise_altitude,
             "term_alt_ref": self.term_alt_ref,
             "term_alt_region": self.term_alt_region,

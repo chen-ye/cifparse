@@ -28,7 +28,7 @@ class Controlled(RecordBase):
                 continue
             else:
                 application = extract_field(line, w_tim.application)
-                if application == a_table.time:
+                if application in [a_table.time, a_table.callsign]:
                     time = Time()
                     self.time.append(time.from_line(line))
                     continue
@@ -40,7 +40,7 @@ class Controlled(RecordBase):
 
     def to_dict(self) -> dict:
         return {
-            "primary": self.primary.to_dict(),
+            "primary": self.primary.to_dict() if self.primary else None,
             "time": [item.to_dict() for item in self.time],
         }
 

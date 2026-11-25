@@ -16,13 +16,13 @@ class Primary(Base):
     mag_var: float
     dme_elevation: int
     figure_of_merit: str
-    dme_bias: str
-    frequency_protection: str
+    dme_bias: float
+    frequency_protection: int
     datum_code: str
     vhf_name: str
 
-    def __init__(self):
-        super().__init__("vhf_navaids")
+    def __init__(self, table_name: str = "vhf_navaids"):
+        super().__init__(table_name)
         self.cont_rec_no = None
         self.frequency = None
         self.nav_class = None

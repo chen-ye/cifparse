@@ -84,7 +84,7 @@ class CIFP:
     _alternate_records: AlternateRecords
     _taas: TAAs
     _mlss: MLSs
-    _markers: TerminalMarkers
+    _terminal_markers: TerminalMarkers
     _path_points: PathPoints
     _flight_plannings: FlightPlannings
     _msas: MSAs
@@ -313,7 +313,10 @@ class CIFP:
 
     def parse_ndb_navaids(self) -> None:
         if self._exists:
-            self._ndb_navaids = NDBNavaids(self._sections.section_d.get_ndb())
+            ndb_lines = []
+            ndb_lines.extend(self._sections.section_d.get_ndb())
+            ndb_lines.extend(self._sections.section_p.get_terminal_ndbs())
+            self._ndb_navaids = NDBNavaids(ndb_lines)
         return
 
     def parse_enroute_waypoints(self) -> None:
@@ -357,7 +360,7 @@ class CIFP:
         return
 
     def parse_enroute_comms(self) -> None:
-        if self._enroute_comms:
+        if self._exists:
             self._enroute_comms = EnrouteComms(
                 self._sections.section_e.get_communication()
             )
@@ -407,7 +410,7 @@ class CIFP:
         return
 
     def parse_gates(self) -> None:
-        if self._gates:
+        if self._exists:
             self._gates = Gates(self._sections.section_p.get_airport_gates())
         return
 

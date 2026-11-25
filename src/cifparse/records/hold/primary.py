@@ -5,16 +5,16 @@ from .widths import w_pri
 
 
 class Primary(Base):
-    cont_rec_no: str
+    cont_rec_no: int
     true: bool
     in_course: float
     turn_dir: str
-    leg_length: int
-    leg_time: int
+    leg_length: float
+    leg_time: float
     min_alt: int
-    min_fl: int
+    min_fl: bool
     max_alt: int
-    max_fl: int
+    max_fl: bool
     hold_speed: int
     rnp: float
     arc_radius: float

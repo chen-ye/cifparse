@@ -14,8 +14,8 @@ class Primary(Base):
     datum_code: str
     ndb_name: str
 
-    def __init__(self):
-        super().__init__("ndb_navaids")
+    def __init__(self, table_name: str = "ndb_navaids"):
+        super().__init__(table_name)
         self.cont_rec_no = None
         self.frequency = None
         self.nav_class = None

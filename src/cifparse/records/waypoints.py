@@ -66,7 +66,7 @@ class Waypoint(RecordBase):
 
     def to_dict(self) -> dict:
         return {
-            "primary": self.primary.to_dict(),
+            "primary": self.primary.to_dict() if self.primary else None,
             "continuation": [item.to_dict() for item in self.continuation],
             "planning": [item.to_dict() for item in self.planning],
             "planning_continuation": [

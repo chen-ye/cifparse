@@ -15,8 +15,8 @@ class Primary(Base):
     name_indicator: str
     name_description: str
 
-    def __init__(self):
-        super().__init__("heli_terminal_waypoints")
+    def __init__(self, table_name: str = "heli_terminal_waypoints"):
+        super().__init__(table_name)
         self.cont_rec_no = None
         self.type = None
         self.usage = None

@@ -24,16 +24,16 @@ class Primary(Base):
     from_dist: float
     in_true: bool
     in_mag_crs: float
-    min_fl_1: int
+    min_fl_1: bool
     min_alt_1: int
-    min_fl_2: int
+    min_fl_2: bool
     min_alt_2: int
-    max_fl: int
+    max_fl: bool
     max_alt: int
     fix_radius: float
 
-    def __init__(self):
-        super().__init__("airway_points")
+    def __init__(self, table_name: str = "airway_points"):
+        super().__init__(table_name)
         self.cont_rec_no = None
         self.desc_code = None
         self.bound_code = None
