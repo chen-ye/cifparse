@@ -23,6 +23,9 @@ from cifparse.records.airway_restriction.closure_primary import (
 from cifparse.records.airway_restriction.cruise_primary import (
     CruisePrimary as RestrictionCruisePrimary,
 )
+from cifparse.records.airway_restriction.note_continuation import (
+    NoteContinuation as RestrictionNoteContinuation,
+)
 from cifparse.records.airway_restriction.note_primary import (
     NotePrimary as RestrictionNotePrimary,
 )
@@ -40,7 +43,11 @@ from cifparse.records.controlleds import Controlleds
 from cifparse.records.cruise_table.primary import Primary as CruiseTablePrimary
 from cifparse.records.enroute_comm.primary import Primary as EnrouteCommPrimary
 from cifparse.records.enroute_comms import EnrouteComm
+from cifparse.records.gls.primary import Primary as GLSPrimary
 from cifparse.records.heli_procedure.base import Base as HeliProcedureBase
+from cifparse.records.heli_procedure.planning import (
+    Planning as HeliProcedurePlanning,
+)
 from cifparse.records.heli_procedure.planning_continuation import (
     PlanningContinuation as HeliProcedurePlanningContinuation,
 )
@@ -55,6 +62,7 @@ from cifparse.records.heliport.planning_continuation import (
 )
 from cifparse.records.holds import Holds
 from cifparse.records.loc_gss import LOC_GS
+from cifparse.records.mls.continuation import Continuation as MLSContinuation
 from cifparse.records.ndb_navaid.planning_continuation import (
     PlanningContinuation as NDBPlanningContinuation,
 )
@@ -65,6 +73,7 @@ from cifparse.records.procedure.planning_continuation import (
     PlanningContinuation as ProcedurePlanningContinuation,
 )
 from cifparse.records.reference_table.base import Base as ReferenceTableBase
+from cifparse.records.reference_table.primary import Primary as ReferenceTablePrimary
 from cifparse.records.terminal_comm.primary import Primary as TerminalCommPrimary
 from cifparse.records.terminal_marker.primary import Primary as TerminalMarkerPrimary
 from cifparse.records.vhf_navaid.planning_continuation import (
@@ -594,6 +603,209 @@ class TestCrossIcaoHoldCollisionAndAirspacePartitioning(unittest.TestCase):
         controlled = Controlleds([uc_a1, uc_a2, uc_b1])
         self.assertEqual(len(controlled.records), 3)
         self.assertEqual([(c.primary.mult_code, c.primary.seq_no) for c in controlled.records], [("A", 10), ("A", 20), ("B", 10)])
+
+
+class TestDifferentialAndStaticAuditFixes(unittest.TestCase):
+    def test_gls_channel_extracts_channel_string_and_exports_to_sqlite(self) -> None:
+        gls_line = (
+            "SSPAP YSSYYMTG07A1   022790RW07                    0620S33575258E151110525YSSY         300E0130  00021WGE     00034        464892003"
+        )
+        self.assertEqual(len(gls_line), 132)
+        gls = GLSPrimary().from_line(gls_line)
+        self.assertEqual(gls.gls_channel, "22790")
+        self.assertFalse(gls.true)
+        self.assertAlmostEqual(gls.gls_bearing, 62.0, places=1)
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            cifp_path = tmp / "FAACIFP18"
+            db_path = tmp / "gls.sqlite"
+            cifp_path.write_text("\n".join([*HEADER_LINES, gls_line]) + "\n")
+            c = CIFP(str(cifp_path))
+            c.parse_glss()
+            c.to_db(str(db_path))
+            with sqlite3.connect(db_path) as conn:
+                row = conn.execute(
+                    "SELECT fac_id, gls_ref_id, gls_channel, gls_bearing FROM glss"
+                ).fetchone()
+                self.assertEqual(row, ("YSSY", "G07A", "22790", 62.0))
+
+    def test_mls_continuation_reads_cov_right(self) -> None:
+        mls_con_line = _build_132(
+            {
+                (0, 5): "SUSAP",
+                (6, 10): "KJFK",
+                (10, 12): "K6",
+                (12, 13): "L",
+                (13, 17): "IJFK",
+                (17, 18): "1",
+                (21, 22): "2",
+                (22, 23): "A",
+                (51, 55): "0440",
+                (83, 86): "040",
+                (86, 89): "040",
+                (89, 92): "060",
+                (92, 95): "065",
+                (95, 100): "04400",
+                (100, 101): "Y",
+                (101, 106): "04410",
+                (106, 107): "Y",
+                (107, 109): "50",
+                (123, 128): "00002",
+                (128, 132): "2210",
+            }
+        )
+        con = MLSContinuation().from_line(mls_con_line)
+        self.assertEqual(con.cov_right, 60)
+        self.assertEqual(con.cov_left, 65)
+
+    def test_airway_restriction_start_point_fields_and_note_continuation_slice(self) -> None:
+        alt_exc_line = _build_132(
+            {
+                (0, 6): "SUSAEU",
+                (6, 11): "J80  ",
+                (12, 15): "001",
+                (15, 17): "AE",
+                (17, 18): "1",
+                (18, 23): "START",
+                (23, 25): "K2",
+                (25, 26): "E",
+                (26, 27): "A",
+                (27, 32): "ENDFX",
+                (32, 34): "K6",
+                (34, 35): "D",
+                (35, 36): " ",
+                (123, 128): "00001",
+                (128, 132): "2210",
+            }
+        )
+        aex = RestrictionAltExcPrimary().from_line(alt_exc_line)
+        self.assertEqual(
+            (aex.start_point_id, aex.start_point_region, aex.start_point_sec_code, aex.start_point_sub_code),
+            ("START", "K2", "E", "A"),
+        )
+        self.assertEqual(
+            (aex.end_point_id, aex.end_point_region, aex.end_point_sec_code, aex.end_point_sub_code),
+            ("ENDFX", "K6", "D", None),
+        )
+
+        note_pri_line = _build_132(
+            {
+                (0, 6): "SUSAEU",
+                (6, 11): "J80  ",
+                (12, 15): "001",
+                (15, 17): "NR",
+                (17, 18): "1",
+                (18, 23): "BEGFX",
+                (23, 25): "K1",
+                (25, 26): "E",
+                (26, 27): "A",
+                (27, 32): "FINFX",
+                (32, 34): "K7",
+                (34, 35): "P",
+                (35, 36): "C",
+                (51, 120): "PRIMARY RESTRICTION NOTE",
+                (123, 128): "00001",
+                (128, 132): "2210",
+            }
+        )
+        npri = RestrictionNotePrimary().from_line(note_pri_line)
+        self.assertEqual(
+            (npri.start_point_id, npri.start_point_region, npri.start_point_sec_code, npri.start_point_sub_code),
+            ("BEGFX", "K1", "E", "A"),
+        )
+        self.assertEqual(
+            (npri.end_point_id, npri.end_point_region, npri.end_point_sec_code, npri.end_point_sub_code),
+            ("FINFX", "K7", "P", "C"),
+        )
+
+        note_con_line = _build_132(
+            {
+                (0, 6): "SUSAEU",
+                (6, 11): "J80  ",
+                (12, 15): "001",
+                (15, 17): "NR",
+                (17, 18): "2",
+                (18, 19): "A",
+                (51, 120): "CONTINUATION RESTRICTION NOTE TEXT BEYOND COL 44",
+                (123, 128): "00002",
+                (128, 132): "2210",
+            }
+        )
+        ncon = RestrictionNoteContinuation().from_line(note_con_line)
+        self.assertEqual(ncon.notes, "CONTINUATION RESTRICTION NOTE TEXT BEYOND COL 44")
+
+    def test_cruise_table_extracts_all_four_level_bands(self) -> None:
+        cruise_line = _build_132(
+            {
+                (0, 1): "S",
+                (4, 6): "TC",
+                (6, 8): "AA",
+                (8, 9): "1",
+                (28, 32): "0000",
+                (32, 36): "1799",
+                (36, 37): "M",
+                (39, 44): "03000",
+                (44, 49): "02000",
+                (49, 54): "27000",
+                (54, 59): "29000",
+                (59, 64): "04000",
+                (64, 69): "41000",
+                (69, 74): "43000",
+                (74, 79): "04000",
+                (79, 84): "51000",
+                (84, 89): "53000",
+                (89, 94): "04000",
+                (94, 99): "61000",
+                (123, 128): "00001",
+                (128, 132): "2210",
+            }
+        )
+        ct = CruiseTablePrimary().from_line(cruise_line)
+        self.assertEqual((ct.level_from_1, ct.vert_sep_1, ct.level_to_1), ("03000", "02000", "27000"))
+        self.assertEqual((ct.level_from_2, ct.vert_sep_2, ct.level_to_2), ("29000", "04000", "41000"))
+        self.assertEqual((ct.level_from_3, ct.vert_sep_3, ct.level_to_3), ("43000", "04000", "51000"))
+        self.assertEqual((ct.level_from_4, ct.vert_sep_4, ct.level_to_4), ("53000", "04000", "61000"))
+
+    def test_reference_table_sixth_route_and_et_indicator_do_not_overlap(self) -> None:
+        ref_line = _build_132(
+            {
+                (0, 6): "SUSATR",
+                (6, 8): "A1",
+                (8, 9): "1",
+                (9, 38): "NORTH ATLANTIC",
+                (38, 39): "0",
+                (100, 110): "PREFROUTE6",
+                (110, 112): "E2",
+                (123, 128): "00001",
+                (128, 132): "2210",
+            }
+        )
+        ref = ReferenceTablePrimary().from_line(ref_line)
+        self.assertEqual(ref.pref_route_id_6, "PREFROUTE6")
+        self.assertEqual(ref.et_ind_6, "E2")
+
+    def test_heli_procedure_planning_leg_dist_is_scalar_float(self) -> None:
+        hp_plan_line = _build_132(
+            {
+                (0, 5): "SUSAH",
+                (6, 10): "87N ",
+                (10, 12): "K6",
+                (12, 13): "F",
+                (13, 19): "R190  ",
+                (26, 29): "010",
+                (38, 39): "2",
+                (39, 40): "P",
+                (40, 41): "S",
+                (41, 52): "20210128   ",
+                (74, 78): "0125",
+                (123, 128): "00001",
+                (128, 132): "2210",
+            }
+        )
+        hp_plan = HeliProcedurePlanning().from_line(hp_plan_line)
+        self.assertIsInstance(hp_plan.leg_dist, float)
+        self.assertAlmostEqual(hp_plan.leg_dist, 12.5, places=1)
 
 
 if __name__ == "__main__":

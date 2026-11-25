@@ -34,7 +34,7 @@ class PrimaryIndices(BaseIndices):
         self.pref_route_id_5 = (88, 98, field_58)
         self.et_ind_5 = (98, 100, field_5220)
         self.pref_route_id_6 = (100, 110, field_58)
-        self.et_ind_6 = (100, 102, field_5220)
+        self.et_ind_6 = (110, 112, field_5220)
         # PAD 11
 
 

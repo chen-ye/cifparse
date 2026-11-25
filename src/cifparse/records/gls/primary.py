@@ -49,7 +49,7 @@ class Primary(Base):
     def from_line(self, line: str) -> "Primary":
         super().from_line(line)
         self.cont_rec_no = extract_field(line, w_pri.cont_rec_no)
-        self.gls_channel = extract_field(line, w_pri.gls_bearing)
+        self.gls_channel = extract_field(line, w_pri.gls_channel)
         self.runway_id = extract_field(line, w_pri.runway_id)
         self.true, self.gls_bearing = extract_field(line, w_pri.gls_bearing)
         self.station_lat = extract_field(line, w_pri.station_lat)

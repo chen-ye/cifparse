@@ -66,7 +66,7 @@ class Continuation(Base):
         self.plus_minus = extract_field(line, w_con.plus_minus)
         self.pro_right = extract_field(line, w_con.pro_right)
         self.pro_left = extract_field(line, w_con.pro_left)
-        self.cov_right = extract_field(line, w_con.cov_righ)
+        self.cov_right = extract_field(line, w_con.cov_right)
         self.cov_left = extract_field(line, w_con.cov_left)
         self.baz_true_bearing = extract_field(line, w_con.baz_true_bearing)
         self.baz_source = extract_field(line, w_con.baz_source)

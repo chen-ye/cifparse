@@ -116,7 +116,7 @@ class PlanningIndices(BaseIndices):
         self.se_ind = (40, 41, field_5152)
         self.se_date = (41, 52, field_5153)
         # PAD 22
-        self.leg_dist = (74, 78, field_527)
+        self.leg_dist = (74, 78, field_5260)
         # RESERVED 45
 
 

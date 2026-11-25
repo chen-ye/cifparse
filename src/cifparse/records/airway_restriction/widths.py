@@ -159,7 +159,7 @@ class NoteContinuationIndices(BaseIndices):
         self.cont_rec_no = (17, 18, field_516)
         self.application = (18, 19, field_591)
         # RESERVED 32
-        self.notes = (37, 44, field_5163)
+        self.notes = (51, 120, field_5163)
         # PAD 3
 
 
