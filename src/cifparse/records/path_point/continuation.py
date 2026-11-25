@@ -7,12 +7,12 @@ from .widths import w_con
 class Continuation(Base):
     cont_rec_no: int
     application: str
-    fpap_ell_hgt: str
-    fpap_ort_hgt: str
-    ltp_ort_hgt: str
+    fpap_ell_hgt: float
+    fpap_ort_hgt: float
+    ltp_ort_hgt: float
     app_type_id: str
     gnss_ch_no: str
-    hpc: str
+    hpc: int
 
     def __init__(self):
         super().__init__("path_point_continuations")

@@ -13,16 +13,16 @@ class Primary(Base):
     app_pd: str
     ltp_lat: float
     ltp_lon: float
-    ltp_ellipsoid_height: int
+    ltp_ellipsoid_height: float
     gpa: float
     fpap_lat: float
     fpap_lon: float
     course_width: float
     length_offset: int
-    path_point_tch: int
+    path_point_tch: float
     tch_ind: str
-    hal: str
-    val: str
+    hal: float
+    val: float
     crc: str
 
     def __init__(self):
@@ -72,6 +72,7 @@ class Primary(Base):
         self.hal = extract_field(line, w_pri.hal)
         self.val = extract_field(line, w_pri.val)
         self.crc = extract_field(line, w_pri.crc)
+        return self
 
     def ordered_fields(self) -> list:
         result = []

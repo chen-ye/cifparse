@@ -28,7 +28,7 @@ class PathPoint(RecordBase):
                 continue
             else:
                 application = extract_field(line, w_con.application)
-                if application == a_table.standard:
+                if application == a_table.extension:
                     continuation = Continuation()
                     self.continuation.append(continuation.from_line(line))
                     continue

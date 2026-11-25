@@ -1280,7 +1280,7 @@ def field_5226(string: str) -> float | None:
 
 def field_5227(string: str) -> float | None:
     "Orthometric Height"
-    return _get_scaled_magnitude(string, -1)
+    return _get_signed_value(string, -1)
 
 
 def field_5228(string: str) -> float | None:
