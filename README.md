@@ -176,3 +176,13 @@ NOTE: The resulting tables are somewhat less-optimally normalized than they coul
 ### CIFP Objects
 
 A breakdown of the different objects can be found in the [Docs](./docs/) directory.
+
+## Development & Testing
+
+Run the zero-dependency unit and static invariant test suite from the repository root:
+
+```bash
+PYTHONPATH=src python3 -m unittest discover -s tests -v
+```
+
+To run the differential oracle against `mitre-public/boogie` (`boogie-arinc`), see [tests/oracle/README.md](./tests/oracle/README.md).
